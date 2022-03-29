@@ -45,6 +45,12 @@ jobs:
           #
           cat ./ufs-core-ubuntu/Dockerfile_template > ./ufs-core-ubuntu/Dockerfile
           sed -i 's/@UFS_TAG/'$"${{ env.ufs_tag }}"'/g' ./ufs-core-ubuntu/Dockerfile
+          sed -i 's/${Cmake_version}/'$"${Cmake_version}"'/g' ./ufs-core-ubuntu/Dockerfile
+          sed -i 's/${bacio_version}/'$"${bacio_version}"'/g' ./ufs-core-ubuntu/Dockerfile
+          sed -i 's/${sp_version}/'$"${sp_version}"'/g' ./ufs-core-ubuntu/Dockerfile
+          sed -i 's/${w3nco_version}/'$"${w3nco_version}"'/g' ./ufs-core-ubuntu/Dockerfile
+          sed -i 's/${esmf_version}/'$"${esmf_version}"'/g' ./ufs-core-ubuntu/Dockerfile
+          sed -i 's/${fms_version}/'$"${fms_version}"'/g' ./ufs-core-ubuntu/Dockerfile                    
           more ./ufs-core-ubuntu/Dockerfile
           #
           cat ./ufs-rt1-ubuntu/Dockerfile_template > ./ufs-rt1-ubuntu/Dockerfile
@@ -57,10 +63,10 @@ jobs:
           echo "Now build and run RT with ufs tag!"
           #
           cd docker/
-          sed -i 's/export //' .env
-          sed -i 's/"//g' .env
-          more .env
-          source .env
+          # sed -i 's/export //' .env
+          # sed -i 's/"//g' .env
+          # more .env
+          # source .env
           OUTPUT=1
           docker-compose --env-file .env pull
           docker-compose --env-file .env up
