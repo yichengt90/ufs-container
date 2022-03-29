@@ -18,28 +18,22 @@ jobs:
       - uses: actions/checkout@v2
         with:
           ref: 'test'
-          
-      - name: Get tag from ufs_weather_model
+
+      - name: Prep
+        id: prep
         run: |
-          # export WORKDIR=${PWD}
-          # echo ${WORKDIR}       
           echo "First get ufs tag remotely!"
           #
           cd docker
           source functions.sh
           parse_yaml ./ufs_lib_version.yaml > .env
-          #
           echo ${ufs_tag}
           more .env
-  
-      - name: Prep
-        id: prep
-        run: |
+          #
           echo "Now preparing Docker files!"
-          echo ${PWD}
-          ls -l -h
-          cd docker
-          ls -l -h 
+          #
+          cat ./docker-compose.yml.template > ./docker-compose.yml
+          sed -i 's/@UFS_TAG/'$"${ufs_tag}"'/g' ./docker-compose.yml 
           #
           cat ./ufs-core-ubuntu/Dockerfile_template > ./ufs-core-ubuntu/Dockerfile
           sed -i 's/@UFS_TAG/'$"${ufs_tag}"'/g' ./ufs-core-ubuntu/Dockerfile
@@ -56,9 +50,9 @@ jobs:
           #
           source .env
           OUTPUT=1
-          docker-compose pull
-          docker-compose up
-          OUTPUT=0
+          #docker-compose pull
+          #docker-compose up
+          #OUTPUT=0
           echo "::set-output name=OUTPUT::$OUTPUT"
 
       - name: Deploy
