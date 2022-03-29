@@ -19,8 +19,7 @@ jobs:
         with:
           ref: 'test'
 
-      - name: Prep
-        id: prep
+      - name: get ufs tag
         run: |
           echo "First get ufs tag remotely!"
           #
@@ -28,19 +27,29 @@ jobs:
           source functions.sh
           parse_yaml ./ufs_lib_version.yaml > .env
           echo ${ufs_tag}
+          echo "ufs_tag=${ufs_tag}" >> $GITHUB_ENV
           more .env
+          
+      - name: Prep
+        id: prep
+        run: |
+          #
+          cd docker/
+          more .env
+          echo ${{ env.ufs_tag }}
           #
           echo "Now preparing Docker files!"
           #
           cat ./docker-compose.yml.template > ./docker-compose.yml
-          sed -i 's/@UFS_TAG/'$"${ufs_tag}"'/g' ./docker-compose.yml 
+          sed -i 's/@UFS_TAG/'$"${{ env.ufs_tag }}"'/g' ./docker-compose.yml
+          more ./docker-compose.yml
           #
           cat ./ufs-core-ubuntu/Dockerfile_template > ./ufs-core-ubuntu/Dockerfile
-          sed -i 's/@UFS_TAG/'$"${ufs_tag}"'/g' ./ufs-core-ubuntu/Dockerfile
+          sed -i 's/@UFS_TAG/'$"${{ env.ufs_tag }}"'/g' ./ufs-core-ubuntu/Dockerfile
           more ./ufs-core-ubuntu/Dockerfile
           #
           cat ./ufs-rt1-ubuntu/Dockerfile_template > ./ufs-rt1-ubuntu/Dockerfile
-          sed -i 's/@UFS_TAG/'$"${ufs_tag}"'/g' ./ufs-rt1-ubuntu/Dockerfile
+          sed -i 's/@UFS_TAG/'$"${{ env.ufs_tag }}"'/g' ./ufs-rt1-ubuntu/Dockerfile
           more ./ufs-rt1-ubuntu/Dockerfile
       
       - name: Test
@@ -48,6 +57,7 @@ jobs:
         run: |
           echo "Now build and run RT with ufs tag!"
           #
+          cd docker/
           source .env
           OUTPUT=1
           #docker-compose pull
@@ -59,5 +69,7 @@ jobs:
         if: ${{ (steps.test.outputs.OUTPUT == 3) }}
         run: |            
           #
+          echo ${{ env.ufs_tag }}
+          cd docker
           echo "Passed tests! Now will deploy new images!"
-          docker push clouden90/ufs-core-ubuntu:${ufs_tag}
+          docker push clouden90/ufs-core-ubuntu:${{ env.ufs_tag }}
