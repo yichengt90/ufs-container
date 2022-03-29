@@ -58,11 +58,12 @@ jobs:
           #
           cd docker/
           sed -i 's/export //' .env
+          sed -i 's/"//g' .env
           more .env
           source .env
           OUTPUT=1
-          docker-compose pull
-          docker-compose up
+          docker-compose --env-file .env pull
+          docker-compose --env-file .env up
           OUTPUT=0
           echo "::set-output name=OUTPUT::$OUTPUT"
 
