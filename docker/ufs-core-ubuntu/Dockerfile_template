@@ -53,12 +53,6 @@ RUN apt -y install g++-9 \
     && \
     update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-9 9
 
-#
-#RUN git clone -b test https://github.com/clouden90/ufs-srweather-app.git 
-#RUN source ./ufs-srweather-app/docker/functions.sh && \
-#    parse_yaml ./ufs-srweather-app/docker/ufs_lib_version.yaml > /.env
-#RUN rm -rf ufs-srweather-app
-
 # CMake 3.22 (apt has 3.16)
 #RUN source /.env && \
 RUN curl -O -L https://github.com/Kitware/CMake/archive/refs/tags/v${Cmake_version}.tar.gz && \
