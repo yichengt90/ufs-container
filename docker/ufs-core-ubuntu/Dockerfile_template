@@ -1,0 +1,175 @@
+FROM ubuntu:20.04
+
+LABEL AUTHOR EPIC
+
+SHELL ["/bin/bash", "--login", "-c"]
+
+RUN apt update -y --allow-unauthenticated
+
+# avoid the interactive prompt for TZ
+ENV TZ America/New_York
+#ENV TZ Etc/UTC
+RUN DEBIAN_FRONTEND=noninteractive apt install -y tzdata
+
+RUN apt install -y bc \
+                   curl \
+                   libhdf5-openmpi-103 \
+                   libgeos-3.8.0 \
+                   libjpeg-turbo8 \
+                   libnetcdf15 \
+                   libnetcdff7 \
+                   libopenmpi3 \
+                   libpnetcdf0d \
+                   libpng16-16 \
+                   libtiff5 \
+                   nco \
+                   python3.9 \
+                   sqlite3 \
+                   time \
+                   vim \
+                   wget \
+                   zlib1g
+
+# development tools
+RUN apt -y install g++-9 \
+                   gcc-9 \
+                   gfortran-9 \
+                   git \
+                   libexpat1-dev \
+                   libgeos-dev \
+                   libhdf5-openmpi-dev \
+                   libnetcdf-dev \
+                   libnetcdff-dev \
+                   netcdf-bin \
+                   libopenmpi-dev \
+                   libpnetcdf-dev \
+                   libpng-dev \
+                   libsqlite3-dev \
+                   libssl-dev \
+                   libtiff5-dev \
+                   libjpeg-turbo8-dev \
+                   make \
+                   zlib1g-dev \
+    && \
+    update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-9 9
+
+#
+#RUN git clone -b test https://github.com/clouden90/ufs-srweather-app.git 
+#RUN source ./ufs-srweather-app/docker/functions.sh && \
+#    parse_yaml ./ufs-srweather-app/docker/ufs_lib_version.yaml > /.env
+#RUN rm -rf ufs-srweather-app
+
+# CMake 3.22 (apt has 3.16)
+#RUN source /.env && \
+RUN curl -O -L https://github.com/Kitware/CMake/archive/refs/tags/v${Cmake_version}.tar.gz && \
+    tar xzf v${Cmake_version}.tar.gz && \
+    cd CMake-${Cmake_version} && \
+    ./bootstrap && \
+    make -j 2 && \
+    make install
+
+# NCEPLIBS
+#RUN source /.env && \
+RUN curl -O -L https://github.com/NOAA-EMC/NCEPLIBS-bacio/archive/refs/tags/v${bacio_version}.tar.gz && \
+    tar xzf v${bacio_version}.tar.gz && \
+    cd NCEPLIBS-bacio-${bacio_version} && \
+    mkdir build && \
+    cd build && \
+    cmake .. && \
+    make -j 2 && \
+    make install
+#RUN source /.env && \
+RUN curl -O -L https://github.com/NOAA-EMC/NCEPLIBS-sp/archive/refs/tags/v${sp_version}.tar.gz && \
+    tar xzf v${sp_version}.tar.gz && \
+    cd NCEPLIBS-sp-${sp_version} && \
+    mkdir build && \
+    cd build && \
+    cmake .. && \
+    make -j 2 && \
+    make install
+#RUN source /.env && \
+RUN curl -O -L https://github.com/NOAA-EMC/NCEPLIBS-w3nco/archive/refs/tags/v${w3nco_version}.tar.gz && \
+    tar xzf v${w3nco_version}.tar.gz && \
+    cd NCEPLIBS-w3nco-${w3nco_version} && \
+    mkdir build && \
+    cd build && \
+    cmake .. && \
+    make -j 2 && \
+    make install
+
+# ESMF (www.earthsystemcog.org/projects/esmf/)
+#RUN source /.env && \
+RUN curl -O -L https://github.com/esmf-org/esmf/archive/refs/tags/ESMF_${esmf_version}.tar.gz && \
+    tar xzf ESMF_${esmf_version}.tar.gz && \
+    cd esmf-ESMF_${esmf_version} && \
+    export ESMF_DIR="$PWD" && \
+    export ESMF_OS=Linux && \
+    export ESMF_COMM=openmpi && \
+    export ESMF_OPENMP=OFF && \
+    export ESMF_COMPILER=gfortran && \
+    export ESMF_F90COMPILER=gfortran && \
+    export ESMF_F90COMPILEPATHS=-I/usr/lib/x86_64-linux-gnu/openmpi/include && \
+    export ESMF_F90LINKLIBS="-L/usr/lib/x86_64-linux-gnu/openmpi/lib -lmpi_cxx" && \
+    export ESMF_CXXCOMPILER=g++ && \
+    export ESMF_CXXCOMPILEPATHS=-I/usr/lib/x86_64-linux-gnu/openmpi/include && \
+    export ESMF_CXXLINKLIBS="-L/usr/lib/x86_64-linux-gnu/openmpi/lib -lmpi_cxx" && \
+    export ESMF_TESTEXHAUSTIVE=on && \
+    export ESMF_TESTSHAREDOBJ=on && \
+    export ESMF_BOPT=O && \
+    export ESMF_OPTLEVEL=2 && \
+    export ESMF_SO_F90COMPILEOPTS=-fPIC && \
+    export ESMF_SO_F90LINKOPTS=-shared && \
+    export ESMF_SO_F90LINKOPTSEXE=-Wl,-export-dynamic && \
+    export ESMF_SO_CXXCOMPILEOPTS=-fPIC && \
+    export ESMF_SO_CXXLINKOPTS=-shared && \
+    export ESMF_SO_CXXLINKOPTSEXE=-Wl,-export-dynamic && \
+    export ESMF_INSTALL_PREFIX=/usr/local && \
+    export ESMF_INSTALL_HEADERDIR=include && \
+    export ESMF_INSTALL_MODDIR=mod && \
+    export ESMF_INSTALL_LIBDIR=lib && \
+    export ESMF_INSTALL_BINDIR=bin && \
+    export ESMF_INSTALL_DOCDIR=doc && \
+    export ESMF_NETCDF="local" && \
+    export ESMF_NETCDF_INCLUDE=/usr/include && \
+    export ESMF_NETCDF_LIBS="-lnetcdf -lnetcdff" && \
+    export ESMF_NETCDF_LIBPATH=/usr/lib/x86_64-linux-gnu && \
+    make -j 2 && \
+    make install
+
+#RUN source /.env && \
+RUN curl -O -L https://github.com/NOAA-GFDL/FMS/archive/refs/tags/${fms_version}.tar.gz && \
+    tar xzf ${fms_version}.tar.gz && \
+    cd FMS-${fms_version} && \
+    mkdir build && \
+    cd build && \
+    cmake -DGFS_PHYS=ON -D64BIT=ON -DOPENMP=ON .. && \
+    make -j 2 && \
+    make install
+
+#RUN source /.env && \
+RUN cd / && \
+    rm -rf \
+    v${Cmake_version}.tar.gz    CMake-${Cmake_version} \
+    v${bacio_version}.tar.gz     NCEPLIBS-bacio-${bacio_version} \
+    v${sp_version}.tar.gz     NCEPLIBS-sp-${sp_version} \
+    v${w3nco_version}.tar.gz     NCEPLIBS-w3nco-${w3nco_version} \
+    ESMF_${esmf_version}.tar.gz esmf-ESMF_${esmf_version} \
+    ${fms_version}.tar.gz    FMS-${fms_version} \
+
+# UFS model
+RUN mkdir /ufs
+WORKDIR /ufs
+
+RUN ln -s /usr/bin/python3.9 /usr/bin/python
+
+RUN git clone https://github.com/ufs-community/ufs-weather-model.git && \
+    cd ufs-weather-model && \
+    git checkout @UFS_TAG && \
+    git submodule update --init --recursive FV3 && \
+    git submodule update --init --recursive stochastic_physics && \
+    git submodule update --init --recursive CMakeModules
+
+# dumb-init
+RUN curl -L https://github.com/Yelp/dumb-init/releases/download/v1.2.1/dumb-init_1.2.1_amd64 -o /usr/local/bin/dumb-init && \
+    chmod +x /usr/local/bin/dumb-init
+ENTRYPOINT ["/usr/local/bin/dumb-init", "--"]
