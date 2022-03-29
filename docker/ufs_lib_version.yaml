@@ -1,0 +1,17 @@
+Cmake:
+  version: 3.22.3
+
+bacio:
+  version: 2.4.1
+
+sp:
+  version: 2.3.3
+
+w3nco:
+  version: 2.4.1
+
+esmf:
+  version: 8_2_0
+
+fms:
+  version: 2022.01

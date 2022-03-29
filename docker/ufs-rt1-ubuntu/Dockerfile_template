@@ -1,0 +1,29 @@
+FROM clouden90/ufs-core-ubuntu:@UFS_TAG as base
+
+
+LABEL AUTHOR EPIC
+
+# ---------
+# UFS - SRW
+# ---------
+SHELL ["/bin/bash", "--login", "-c"]
+WORKDIR /ufs
+
+# Build
+RUN cd ./ufs-weather-model && \
+    mkdir build && \
+    cd build && \
+    cmake -DAPP=ATM -DCCPP_SUITES=FV3_GFS_v15_thompson_mynn -DCMAKE_MODULE_PATH=/usr/local/lib/cmake .. && \
+    make -j 2 && \
+    make install && \
+    cp ufs_model /usr/local/bin/ufs_model
+    
+# Download data; TODO: move to aws
+WORKDIR /ufs
+RUN curl -O -L https://dl.dropboxusercontent.com/s/neg7k9qhnzlgyuj/control_regional.tar.gz && \
+    tar -zxvf control_regional.tar.gz && \
+    rm control_regional.tar.gz
+
+# RT case
+WORKDIR /ufs/regional_control_case
+RUN mpirun --allow-run-as-root -np 2 ufs_model

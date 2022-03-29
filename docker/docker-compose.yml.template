@@ -1,0 +1,15 @@
+version: "3.2"
+
+services:
+
+  # build supporting stack
+  ufs-core-ubuntu:
+    build: ./ufs-core-ubuntu
+    image: clouden90/ufs-core-ubuntu:@UFS_TAG
+
+  # build and test ufs RT
+  ufs-rt1-ubuntu:
+    build: ./ufs-rt1-ubuntu
+    depends_on:
+      - ufs-core-ubuntu
+    image: clouden90/ufs-rt1-ubuntu:@UFS_TAG
