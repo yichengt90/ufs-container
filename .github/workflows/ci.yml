@@ -35,7 +35,6 @@ jobs:
         run: |
           #
           cd docker/
-          more .env
           echo ${{ env.ufs_tag }}
           #
           echo "Now preparing Docker files!"
@@ -58,6 +57,8 @@ jobs:
           echo "Now build and run RT with ufs tag!"
           #
           cd docker/
+          sed -i 's/export //' .env
+          more .env
           source .env
           OUTPUT=1
           docker-compose pull
