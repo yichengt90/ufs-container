@@ -21,23 +21,21 @@ jobs:
           
       - name: Get tag from ufs_weather_model
         run: |
-          export WORKDIR=${PWD}
-          echo ${WORKDIR}       
+          # export WORKDIR=${PWD}
+          # echo ${WORKDIR}       
           echo "First get ufs tag remotely!"
           #
-          source ${WORKDIR}/docker/functions.sh
-          parse_yaml ${WORKDIR}/docker/ufs_lib_version.yaml > ${WORKDIR}/docker/.env
+          cd docker/
+          source functions.sh
+          parse_yaml ./ufs_lib_version.yaml > .env
           #
           echo ${ufs_tag}
-          more ${WORKDIR}/docker/.env
+          more .env
   
       - name: Prep
         id: prep
         run: |
           echo "Now preparing Docker files!"
-          echo "Now build and run RT with ufs tag!"
-          #
-          cd ${WORKDIR}/docker
           #
           cat ./ufs-core-ubuntu/Dockerfile_template > ./ufs-core-ubuntu/Dockerfile
           sed -i 's/@UFS_TAG/'$"${ufs_tag}"'/g' ./ufs-core-ubuntu/Dockerfile
@@ -52,8 +50,6 @@ jobs:
         run: |
           echo "Now build and run RT with ufs tag!"
           #
-          cd ${WORKDIR}/docker
-          #
           source .env
           OUTPUT=1
           docker-compose pull
@@ -62,7 +58,7 @@ jobs:
           echo "::set-output name=OUTPUT::$OUTPUT"
 
       - name: Deploy
-        if: ${{ (steps.test.outputs.OUTPUT == 2) }}
+        if: ${{ (steps.test.outputs.OUTPUT == 3) }}
         run: |            
           #
           echo "Passed tests! Now will deploy new images!"
