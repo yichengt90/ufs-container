@@ -27,3 +27,13 @@ RUN curl -O -L https://dl.dropboxusercontent.com/s/neg7k9qhnzlgyuj/control_regio
 # RT case
 WORKDIR /ufs/regional_control_case
 RUN mpirun --allow-run-as-root -np 2 ufs_model
+
+# check with baseline
+WORKDIR /ufs
+RUN apt install -y python3-netcdf4 \
+                   python3-numpy
+RUN curl -O -L https://dl.dropboxusercontent.com/s/d06a799l7liy6yv/ref.tar.gz && \
+    tar -zxvf ref.tar.gz && \
+    rm ref.tar.gz
+WORKDIR /ufs/ref
+RUN bash compare.sh
