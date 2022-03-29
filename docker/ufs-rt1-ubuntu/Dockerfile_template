@@ -32,7 +32,7 @@ RUN mpirun --allow-run-as-root -np 2 ufs_model
 WORKDIR /ufs
 RUN apt install -y python3-netcdf4 \
                    python3-numpy
-RUN curl -O -L https://dl.dropboxusercontent.com/s/d06a799l7liy6yv/ref.tar.gz
+RUN curl -O -L https://dl.dropboxusercontent.com/s/d06a799l7liy6yv/ref.tar.gz && \
     tar -zxvf ref.tar.gz && \
     rm ref.tar.gz
 WORKDIR /ufs/ref
