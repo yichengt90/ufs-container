@@ -25,7 +25,7 @@ jobs:
           # echo ${WORKDIR}       
           echo "First get ufs tag remotely!"
           #
-          cd docker/
+          cd docker
           source functions.sh
           parse_yaml ./ufs_lib_version.yaml > .env
           #
@@ -36,6 +36,10 @@ jobs:
         id: prep
         run: |
           echo "Now preparing Docker files!"
+          echo ${PWD}
+          ls -l -h
+          cd docker
+          ls -l -h 
           #
           cat ./ufs-core-ubuntu/Dockerfile_template > ./ufs-core-ubuntu/Dockerfile
           sed -i 's/@UFS_TAG/'$"${ufs_tag}"'/g' ./ufs-core-ubuntu/Dockerfile
