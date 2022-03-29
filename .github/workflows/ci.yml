@@ -1,0 +1,69 @@
+name: CI/CD
+
+on: push
+
+#on:
+#  schedule:
+#    - cron: '0 03,06,09,12,15,18 * * *'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+
+    name: CI/CD stable-nightly branch
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          ref: 'test'
+          
+      - name: Get tag from ufs_weather_model
+        run: |
+          export WORKDIR=${PWD}
+          echo ${WORKDIR}       
+          echo "First get ufs tag remotely!"
+          #
+          source ${WORKDIR}/docker/functions.sh
+          parse_yaml ${WORKDIR}/docker/ufs_lib_version.yaml > ${WORKDIR}/docker/.env
+          #
+          echo ${ufs_tag}
+          more ${WORKDIR}/docker/.env
+  
+      - name: Prep
+        id: prep
+        run: |
+          echo "Now preparing Docker files!"
+          echo "Now build and run RT with ufs tag!"
+          #
+          cd ${WORKDIR}/docker
+          #
+          cat ./ufs-core-ubuntu/Dockerfile_template > ./ufs-core-ubuntu/Dockerfile
+          sed -i 's/@UFS_TAG/'$"${ufs_tag}"'/g' ./ufs-core-ubuntu/Dockerfile
+          more ./ufs-core-ubuntu/Dockerfile
+          #
+          cat ./ufs-rt1-ubuntu/Dockerfile_template > ./ufs-rt1-ubuntu/Dockerfile
+          sed -i 's/@UFS_TAG/'$"${ufs_tag}"'/g' ./ufs-rt1-ubuntu/Dockerfile
+          more ./ufs-rt1-ubuntu/Dockerfile
+      
+      - name: Test
+        id: test
+        run: |
+          echo "Now build and run RT with ufs tag!"
+          #
+          cd ${WORKDIR}/docker
+          #
+          source .env
+          OUTPUT=1
+          docker-compose pull
+          docker-compose up
+          OUTPUT=0
+          echo "::set-output name=OUTPUT::$OUTPUT"
+
+      - name: Deploy
+        if: ${{ (steps.test.outputs.OUTPUT == 2) }}
+        run: |            
+          #
+          echo "Passed tests! Now will deploy new images!"
+          docker push clouden90/ufs-core-ubuntu:${ufs_tag}
