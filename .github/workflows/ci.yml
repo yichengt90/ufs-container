@@ -60,13 +60,13 @@ jobs:
           cd docker/
           source .env
           OUTPUT=1
-          #docker-compose pull
-          #docker-compose up
-          #OUTPUT=0
+          docker-compose pull
+          docker-compose up
+          OUTPUT=0
           echo "::set-output name=OUTPUT::$OUTPUT"
 
       - name: Deploy
-        if: ${{ (steps.test.outputs.OUTPUT == 3) }}
+        if: ${{ (steps.test.outputs.OUTPUT == 0) }}
         run: |            
           #
           echo ${{ env.ufs_tag }}
