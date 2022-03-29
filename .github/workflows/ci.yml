@@ -43,6 +43,7 @@ jobs:
           sed -i 's/@UFS_TAG/'$"${{ env.ufs_tag }}"'/g' ./docker-compose.yml
           more ./docker-compose.yml
           #
+          source .env
           cat ./ufs-core-ubuntu/Dockerfile_template > ./ufs-core-ubuntu/Dockerfile
           sed -i 's/@UFS_TAG/'$"${{ env.ufs_tag }}"'/g' ./ufs-core-ubuntu/Dockerfile
           sed -i 's/${Cmake_version}/'$"${Cmake_version}"'/g' ./ufs-core-ubuntu/Dockerfile
@@ -68,8 +69,8 @@ jobs:
           # more .env
           # source .env
           OUTPUT=1
-          docker-compose --env-file .env pull
-          docker-compose --env-file .env up
+          docker-compose pull
+          docker-compose up
           OUTPUT=0
           echo "::set-output name=OUTPUT::$OUTPUT"
 
