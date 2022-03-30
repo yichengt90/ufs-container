@@ -79,8 +79,9 @@ jobs:
         run: |            
           #
           cd docker
-          check_image=$(docker manifest inspect clouden90/ufs-core-ubuntu:echo ${{ env.ufs_tag }} > /dev/null ; echo $?)
-          if [ check_image != 0 ]; then
+          check_image=$(docker manifest inspect clouden90/ufs-core-ubuntu:${{ env.ufs_tag }} > /dev/null ; echo $?)
+          echo $check_image
+          if [ $check_image != 0 ]; then
             echo "Passed tests! Now will deploy new ufs core image!"
             docker push clouden90/ufs-core-ubuntu:${{ env.ufs_tag }}
           else
