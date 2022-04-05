@@ -1,10 +1,10 @@
 name: CI/CD
 
-#on: push
+on: push
 
-on:
-  schedule:
-    - cron: '00 00,03,06,09,12,15,18,21 * * *'
+#on:
+#  schedule:
+#    - cron: '00 00,03,06,09,12,15,18,21 * * *'
 
 jobs:
   build:
