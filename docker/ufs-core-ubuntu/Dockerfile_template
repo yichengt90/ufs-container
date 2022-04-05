@@ -88,9 +88,9 @@ RUN curl -O -L https://github.com/NOAA-EMC/NCEPLIBS-w3nco/archive/refs/tags/v${w
     make install
 
 # ESMF (www.earthsystemcog.org/projects/esmf/)
-RUN curl -O -L https://github.com/esmf-org/esmf/archive/refs/tags/ESMF_${esmf_version}.tar.gz && \
+RUN curl -O -L https://github.com/esmf-org/esmf/archive/refs/tags/v${esmf_version}.tar.gz && \
     tar xzf ESMF_${esmf_version}.tar.gz && \
-    cd esmf-ESMF_${esmf_version} && \
+    cd esmf-${esmf_version} && \
     export ESMF_DIR="$PWD" && \
     export ESMF_OS=Linux && \
     export ESMF_COMM=openmpi && \
@@ -140,7 +140,7 @@ RUN cd / && \
     v${bacio_version}.tar.gz     NCEPLIBS-bacio-${bacio_version} \
     v${sp_version}.tar.gz     NCEPLIBS-sp-${sp_version} \
     v${w3nco_version}.tar.gz     NCEPLIBS-w3nco-${w3nco_version} \
-    ESMF_${esmf_version}.tar.gz esmf-ESMF_${esmf_version} \
+    v${esmf_version}.tar.gz esmf-${esmf_version} \
     ${fms_version}.tar.gz    FMS-${fms_version} \
 
 # UFS model
